@@ -1,3 +1,10 @@
+"""
+codex.py - Data encoding utilities.
+Handles the conversion of string payloads into different numerical bases,
+simulating encoding transformations as a packet moves between nodes with
+different 'codex' levels.
+"""
+
 def ascii_to_base(ascii_val, base):
     if ascii_val == 0:
         return "0"

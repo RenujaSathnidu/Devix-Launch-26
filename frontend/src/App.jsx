@@ -1,3 +1,8 @@
+/**
+ * App.jsx - Main Application Component for Zeta-26 Interplanetary Routing Simulator
+ * This component manages the global state of the universe, chaos events (node/link failures),
+ * packet transmissions, and renders all the primary UI components (StarMap, EventLog, Analytics).
+ */
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { fetchUniverse, sendMessage, killNode, killLink, restoreAll, getChaosState } from './utils/api';
 import StarMap from './components/StarMap';

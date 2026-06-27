@@ -1,3 +1,10 @@
+"""
+router.py - Network routing logic.
+Implements Dijkstra's shortest path algorithm to find the optimal route
+between an origin and destination node. It takes into account current 'chaos'
+conditions (killed nodes or links) to dynamically re-route traffic.
+"""
+
 import chaos
 from physics import compute_void_distance, compute_void_travel_time
 
