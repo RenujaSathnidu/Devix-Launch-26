@@ -625,6 +625,24 @@ export default function App() {
                     );
                   })}
                 </div>
+                {killedNodes.size > 0 && (
+                  <div style={{ marginTop: 12, marginBottom: 12 }}>
+                    <div className="chaos-section-label">DEAD PLANETS</div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                      {Array.from(killedNodes).map(nodeId => (
+                        <span 
+                          key={nodeId} 
+                          className="badge badge-danger"
+                          style={{ cursor: 'pointer', padding: '4px 8px' }}
+                          onClick={() => handleKillNode(nodeId)}
+                          title="Click to revive"
+                        >
+                          {nodeId} ✕
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </>
             )}
             
@@ -681,7 +699,18 @@ export default function App() {
                 <div className="chaos-section-label">DEAD LINKS</div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                   {killedLinks.map(link => (
-                    <span key={link} className="badge badge-danger">{link}</span>
+                    <span 
+                      key={link} 
+                      className="badge badge-danger"
+                      style={{ cursor: 'pointer', padding: '4px 8px' }}
+                      onClick={() => {
+                        const [a, b] = link.split('-');
+                        handleKillLink(a, b);
+                      }}
+                      title="Click to revive"
+                    >
+                      {link} ✕
+                    </span>
                   ))}
                 </div>
               </div>
