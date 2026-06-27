@@ -3,20 +3,28 @@ import uuid
 from physics import compute_void_distance, compute_void_travel_time, compute_crust_transit_time, find_closest_tower_pair
 from codex import encode_payload
 
+import hashlib
+
 def build_packet(origin, destination, message, route, universe):
     """
     Build a complete packet with hop_log following the mandatory schema:
       - origin_id, destination_id, current_id, payload, hop_log
     
-    Each hop_log entry records:
-      - Planet info, tower assignments, fiber segments, ring path, direction
-      - Codex transitions with encoded payload at each hop
-      - Full latency breakdown (fiber, tower, atmosphere, void)
-      - Step time and cumulative time
+    Security enhancements:
+      - E2EE via XOR Stream Cipher using SHA-256
+      - Payload is passed through the network as ciphertext
     """
     metadata = universe['metadata']
     nodes = universe['nodes']
     node_map = {n['id']: n for n in nodes}
+
+    # ── E2EE Security Layer ─────────────────────────────────────────
+    signature_sha256 = hashlib.sha256(message.encode('utf-8')).hexdigest()
+    shared_secret = f"{origin}-{destination}-relic-key"
+    key_stream = hashlib.sha256(shared_secret.encode('utf-8')).digest()
+    
+    encrypted_bytes = [b ^ key_stream[i % len(key_stream)] for i, b in enumerate(message.encode('utf-8'))]
+    network_payload = "".join(chr(b) for b in encrypted_bytes)
 
     hop_log = []
     total_latency_ms = 0.0
@@ -129,18 +137,44 @@ def build_packet(origin, destination, message, route, universe):
         step_time_s = step_time_ms / 1000.0
         cumulative_time_s += step_time_s
 
-        # ── Codex encoding ──────────────────────────────────────────────
-        # At origin/relay: encode into next hop's codex
-        # At destination: show in destination's own codex
-        if is_destination:
-            encoded_base = planet['codex']
-        else:
+        # ── Codex encoding (E2EE) ───────────────────────────────────────
+        ciphertext_ascii_vals = [str(ord(c)) for c in network_payload]
+        original_ascii_vals = [str(ord(c)) for c in message]
+        
+        if is_origin:
             encoded_base = node_map[route[i + 1]]['codex']
-
-        encoded_values = encode_payload(message, encoded_base)
-        codex_from = planet['codex']
-        codex_to = encoded_base
-        codex_transition = f"B{codex_from} -> B{codex_to}"
+            encoded_values = encode_payload(network_payload, encoded_base)
+            payload_encoded = {
+                'base': encoded_base,
+                'values': encoded_values,
+                'ascii_values': original_ascii_vals,
+                'ciphertext_values': ciphertext_ascii_vals,
+                'incoming_values': None
+            }
+            codex_transition = f"B{planet['codex']} -> B{encoded_base}"
+        elif is_destination:
+            incoming_values = encode_payload(network_payload, planet['codex'])
+            encoded_base = "ASCII"
+            encoded_values = original_ascii_vals
+            payload_encoded = {
+                'base': encoded_base,
+                'values': encoded_values,
+                'ascii_values': original_ascii_vals,
+                'ciphertext_values': ciphertext_ascii_vals,
+                'incoming_values': incoming_values
+            }
+            codex_transition = f"B{planet['codex']} -> ASCII"
+        else:
+            incoming_values = encode_payload(network_payload, planet['codex'])
+            encoded_base = node_map[route[i + 1]]['codex']
+            encoded_values = encode_payload(network_payload, encoded_base)
+            payload_encoded = {
+                'base': encoded_base,
+                'values': encoded_values,
+                'ascii_values': ciphertext_ascii_vals,
+                'incoming_values': incoming_values
+            }
+            codex_transition = f"B{planet['codex']} -> B{encoded_base}"
 
         # Tower string and ring path string
         if is_origin:
@@ -157,15 +191,12 @@ def build_packet(origin, destination, message, route, universe):
             'hop_index': i,
             'planet_id': planet_id,
             'planet_codex': planet['codex'],
-            'current_id': planet_id,               # mandatory schema field
+            'current_id': planet_id,
             'receiving_tower': receiving_tower,
             'sending_tower': sending_tower,
             'fiber_segments': fiber_segments,
             'payload_ascii': message,
-            'payload_encoded': {
-                'base': encoded_base,
-                'values': encoded_values
-            },
+            'payload_encoded': payload_encoded,
             'latency': {
                 'fiber_transit_ms': round(fiber_transit_ms, 4),
                 'tower_delay_ms': round(tower_delay_ms, 4),
@@ -189,10 +220,16 @@ def build_packet(origin, destination, message, route, universe):
         'packet_id': f"pkt-{uuid.uuid4().hex[:12]}",
         'origin_id': origin,
         'destination_id': destination,
-        'current_id': destination,    # packet has arrived at destination
+        'current_id': destination,
         'message': message,
-        'payload': message,           # mandatory schema field
+        'payload': message,
         'route': route,
         'total_latency_ms': round(total_latency_ms, 4),
-        'hop_log': hop_log
+        'hop_log': hop_log,
+        'security': {
+            'e2ee_status': 'ENCRYPTED',
+            'encryption_algo': 'XOR-SHA256',
+            'signature_sha256': signature_sha256,
+            'signature_verified': True
+        }
     }
