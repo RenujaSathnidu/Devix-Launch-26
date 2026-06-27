@@ -18,6 +18,16 @@ with open(config_path, 'r', encoding='utf-8') as f:
 metadata = config['universe_metadata']
 
 def compute_towers(node):
+    """
+    Calculates the spatial (x, y) coordinates for all active towers around a planetary node,
+    distributing them evenly around its circumference.
+    
+    Args:
+        node (dict): The planetary node configuration.
+        
+    Returns:
+        list: A list of tower dictionaries containing index and coordinates.
+    """
     S = metadata['coordinate_scale_unit_km']
     cx = node['x'] * S
     cy = node['y'] * S
@@ -53,6 +63,12 @@ for i in range(len(nodes)):
             })
 
 def get_universe():
+    """
+    Returns the complete, current state of the universe.
+    
+    Returns:
+        dict: A dictionary containing metadata, computed nodes with towers, and active links.
+    """
     return {
         'metadata': metadata,
         'nodes': nodes,
