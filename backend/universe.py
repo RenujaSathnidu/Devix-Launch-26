@@ -1,3 +1,10 @@
+"""
+universe.py - Manages the state and layout of the Zeta-26 universe.
+Loads configuration from `universe-config.json`, computes the exact tower
+locations for each planetary node, and establishes initial communication links
+between nodes based on maximum void hop distances.
+"""
+
 import json
 import math
 import os

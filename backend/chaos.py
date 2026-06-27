@@ -1,3 +1,9 @@
+"""
+chaos.py - State management for network disruptions.
+Keeps track of nodes and links that have been artificially 'killed'
+by the user in the frontend, preventing the router from using them.
+"""
+
 killed_nodes = set()
 killed_links = set()
 

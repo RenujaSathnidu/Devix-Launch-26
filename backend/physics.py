@@ -1,3 +1,10 @@
+"""
+physics.py - Mathematical calculations for space and planetary physics.
+Contains functions for calculating distances between planets (void distance),
+light travel time factoring in atmospheric refraction, fiber transit times
+across planetary crusts, and finding optimal tower pairings between nodes.
+"""
+
 import math
 
 def compute_void_distance(node1, node2, metadata):

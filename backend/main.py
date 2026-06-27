@@ -1,4 +1,11 @@
-from fastapi import FastAPI, HTTPException, Request
+"""
+main.py - Entry point for the Zeta-26 Interplanetary Routing Simulator API.
+This module defines the FastAPI application, CORS settings, and all HTTP endpoints.
+It provides routes for fetching the universe state, sending simulated messages,
+and manipulating the chaos state (killing/restoring nodes and links).
+"""
+
+from fastapi import FastAPI, HTTPException, Header, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse

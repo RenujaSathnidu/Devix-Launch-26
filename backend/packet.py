@@ -1,3 +1,11 @@
+"""
+packet.py - Payload construction and simulation logger.
+Constructs the full packet trajectory from origin to destination, including
+end-to-end encryption (E2EE) using an XOR stream cipher. It calculates
+detailed latency breakdowns (fiber transit, tower processing, void travel,
+atmosphere delay) and builds the 'hop_log' for the frontend visualization.
+"""
+
 import math
 import uuid
 from physics import compute_void_distance, compute_void_travel_time, compute_crust_transit_time, find_closest_tower_pair
