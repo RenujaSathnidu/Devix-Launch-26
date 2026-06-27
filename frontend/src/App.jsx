@@ -196,16 +196,41 @@ export default function App() {
         {/* ═══ HEADER BAR ═══════════════════════════════════════ */}
         <header className="zeta-header">
           <div className="header-left">
-            <div className="header-logo">
-              <svg width="32" height="32" viewBox="0 0 32 32">
-                <polygon points="16,2 30,28 2,28" fill="none" stroke="#a78bfa" strokeWidth="2" />
-                <polygon points="16,8 25,26 7,26" fill="#7c3aed" opacity="0.3" />
-                <circle cx="16" cy="16" r="4" fill="#a78bfa" />
-              </svg>
-            </div>
             <div>
-              <div className="header-title">RELIC RING PROTOCOL</div>
-              <div className="header-subtitle">ZETA-26 STAR SYSTEM — ROUTING SIMULATOR</div>
+              <div
+                className="header-title"
+                style={{
+                  fontFamily: "'Fjalla One', sans-serif",
+                  fontSize: "1.5rem",
+                  fontWeight: "700",
+                  background:
+                    "linear-gradient(90deg, #7d7d7d 0%, #bfbfbf 35%, #ffffff 50%, #d8d8d8 70%, #8a8a8a 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  marginTop: "5px",
+                  backgroundClip: "text",
+                  letterSpacing: "2px",
+                  lineHeight: "1",
+                  textTransform: "uppercase",
+                  textShadow: "0 0 20px rgba(0, 229, 255, 0.15)",
+                }}
+              >
+                RELIC RING PROTOCOL
+              </div>
+
+              <div
+                className="header-subtitle"
+                style={{
+                  fontSize: "0.8rem",
+                  color: "#00ffd9",
+                  letterSpacing: "2px",
+                  marginTop: "5px",
+                  fontWeight: "500",
+                  textTransform: "uppercase",
+                }}
+              >
+                ZETA-26 STAR SYSTEM — ROUTING SIMULATOR
+              </div>
             </div>
           </div>
 
