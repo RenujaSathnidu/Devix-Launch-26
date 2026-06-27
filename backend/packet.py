@@ -15,12 +15,21 @@ import hashlib
 
 def build_packet(origin, destination, message, route, universe):
     """
-    Build a complete packet with hop_log following the mandatory schema:
-      - origin_id, destination_id, current_id, payload, hop_log
+    Build a complete packet trajectory with hop_log following the mandatory schema.
     
     Security enhancements:
       - E2EE via XOR Stream Cipher using SHA-256
       - Payload is passed through the network as ciphertext
+      
+    Args:
+        origin (str): Origin node ID.
+        destination (str): Destination node ID.
+        message (str): The raw string payload to send.
+        route (list): An ordered list of node IDs comprising the path.
+        universe (dict): The universe configuration state.
+        
+    Returns:
+        dict: A comprehensive packet dictionary containing the route, latency totals, hop log, and security info.
     """
     metadata = universe['metadata']
     nodes = universe['nodes']

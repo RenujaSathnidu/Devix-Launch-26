@@ -9,6 +9,19 @@ import chaos
 from physics import compute_void_distance, compute_void_travel_time
 
 def find_route(origin, destination, universe, chaos_state=None):
+    """
+    Finds the shortest path (in terms of travel time latency) between origin and destination nodes.
+    Uses Dijkstra's algorithm. Ignores nodes and links that are currently marked as killed in the chaos state.
+    
+    Args:
+        origin (str): ID of the starting node.
+        destination (str): ID of the target node.
+        universe (dict): The universe state containing nodes, links, and metadata.
+        chaos_state (dict, optional): Current state of killed nodes/links. Defaults to None.
+        
+    Returns:
+        list or None: An ordered list of node IDs representing the route, or None if no path exists.
+    """
     metadata = universe['metadata']
     nodes = universe['nodes']
     links = universe['links']
