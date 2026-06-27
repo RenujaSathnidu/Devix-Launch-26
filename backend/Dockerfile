@@ -3,11 +3,11 @@ FROM python:3.12-slim
 WORKDIR /app
 
 # Install dependencies first for better layer caching
-COPY backend_python/requirements.txt .
+COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
-COPY backend_python/ .
+COPY backend/ .
 
 # Copy the shared config one level up (universe.py resolves '../universe-config.json')
 COPY universe-config.json /universe-config.json
