@@ -66,6 +66,7 @@ def build_packet(origin, destination, message, route, universe):
             # Individual atmosphere delays (ms)
             atmos_delay_origin_ms = (h1 * n1) / C * 1000
             atmos_delay_dest_ms = (h2 * n2) / C * 1000
+            
             # Pure vacuum travel (excluding atmosphere portions) (ms)
             vacuum_travel_ms = (L / C) * 1000
 
