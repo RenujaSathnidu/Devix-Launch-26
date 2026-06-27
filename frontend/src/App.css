@@ -49,6 +49,13 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+@font-face {
+  font-family: "Fjalla One";
+  src: url("./assets/fonts/FjallaOne-Regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
 /* ══════════════════════════════════════════════════════════════════════════
    APP LAYOUT GRID
    ══════════════════════════════════════════════════════════════════════════ */
