@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Header, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
@@ -18,6 +18,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+API_KEY = "RELIC-RING-SECURE-26"
+
+async def verify_api_key(x_relic_api_key: str = Header(...)):
+    if x_relic_api_key != API_KEY:
+        raise HTTPException(status_code=401, detail="Invalid or missing API Key")
+
 class SendRequest(BaseModel):
     origin: str
     destination: str
@@ -34,7 +40,7 @@ class LinkRequest(BaseModel):
 def get_universe():
     return universe.get_universe()
 
-@app.post("/api/send")
+@app.post("/api/send", dependencies=[Depends(verify_api_key)])
 def send_message(req: SendRequest):
     uni = universe.get_universe()
     node_ids = [n['id'] for n in uni['nodes']]
@@ -53,7 +59,7 @@ def send_message(req: SendRequest):
     packet = build_packet(req.origin, req.destination, req.message, route, uni)
     return packet
 
-@app.post("/api/chaos/kill-node")
+@app.post("/api/chaos/kill-node", dependencies=[Depends(verify_api_key)])
 def kill_node(req: NodeIdRequest):
     uni = universe.get_universe()
     node_ids = [n['id'] for n in uni['nodes']]
@@ -63,7 +69,7 @@ def kill_node(req: NodeIdRequest):
     chaos.kill_node(req.nodeId)
     return {"success": True, "message": f"Node {req.nodeId} killed", "state": chaos.get_state()}
 
-@app.post("/api/chaos/kill-link")
+@app.post("/api/chaos/kill-link", dependencies=[Depends(verify_api_key)])
 def kill_link(req: LinkRequest):
     uni = universe.get_universe()
     node_ids = [n['id'] for n in uni['nodes']]
@@ -73,7 +79,7 @@ def kill_link(req: LinkRequest):
     chaos.kill_link(req.nodeA, req.nodeB)
     return {"success": True, "message": f"Link {req.nodeA}-{req.nodeB} killed", "state": chaos.get_state()}
 
-@app.post("/api/chaos/restore")
+@app.post("/api/chaos/restore", dependencies=[Depends(verify_api_key)])
 def restore_chaos():
     chaos.restore()
     return {"success": True, "message": "All nodes and links restored", "state": chaos.get_state()}
