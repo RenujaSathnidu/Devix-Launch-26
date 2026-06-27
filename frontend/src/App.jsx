@@ -36,6 +36,8 @@ export default function App() {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState(null);
   const [animationData, setAnimationData] = useState(null);
+  const [linkA, setLinkA] = useState('');
+  const [linkB, setLinkB] = useState('');
   const [activeHop, setActiveHop] = useState(-1);
   const [activeTab, setActiveTab] = useState('map');
   const [animSpeed, setAnimSpeed] = useState(0.5);
@@ -230,7 +232,7 @@ export default function App() {
             </button>
             <button
               className="hdr-btn kill-btn"
-              onClick={() => setActiveTab('chaos')}
+              onClick={() => setActiveTab('kill-planet')}
             >
               💀 KILL PLANET
             </button>
@@ -591,36 +593,82 @@ export default function App() {
         <AnalyticsSection packetResult={packetResult} eventLog={eventLog} />
       </div>
 
-      {/* Chaos panel overlay (when chaos tab is active) */}
-      {activeTab === 'chaos' && (
-        <div className="chaos-overlay">
-          <div className="chaos-modal">
+      {/* Dropdown modal (when chaos or kill-planet tab is active) */}
+      {(activeTab === 'chaos' || activeTab === 'kill-planet') && (
+        <div className="chaos-overlay" onClick={() => setActiveTab('map')}>
+          <div className="chaos-modal" onClick={(e) => e.stopPropagation()}>
             <div className="chaos-modal-header">
-              <span>💀 CHAOS CONTROL</span>
+              <span>{activeTab === 'chaos' ? '⚡ CHAOS MODE' : '💀 KILL PLANET'}</span>
               <button className="chaos-close" onClick={() => setActiveTab('map')}>✕</button>
             </div>
 
-            <div className="chaos-section-label">KILL / REVIVE NODE</div>
-            <div className="chaos-grid">
-              {nodes.map(node => {
-                const isKilled = killedNodes.has(node.id);
-                return (
-                  <button
-                    key={node.id}
-                    className={`chaos-node-btn ${isKilled ? 'killed' : ''}`}
-                    style={{ borderColor: isKilled ? undefined : PLANET_COLORS[node.id] + '55' }}
-                    onClick={() => handleKillNode(node.id)}
-                    title={isKilled ? `Revive ${node.id}` : `Kill ${node.id}`}
+            {activeTab === 'kill-planet' && (
+              <>
+                <div className="chaos-section-label">KILL / REVIVE NODE</div>
+                <div className="chaos-grid">
+                  {nodes.map(node => {
+                    const isKilled = killedNodes.has(node.id);
+                    return (
+                      <button
+                        key={node.id}
+                        className={`chaos-node-btn ${isKilled ? 'killed' : ''}`}
+                        style={{ borderColor: isKilled ? undefined : PLANET_COLORS[node.id] + '55' }}
+                        onClick={() => handleKillNode(node.id)}
+                        title={isKilled ? `Revive ${node.id}` : `Kill ${node.id}`}
+                      >
+                        <div
+                          className="chaos-node-dot"
+                          style={{ backgroundColor: isKilled ? 'var(--danger)' : PLANET_COLORS[node.id] }}
+                        />
+                        <span className="node-name">{node.id}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+            
+            {activeTab === 'chaos' && (
+              <>
+                <div className="chaos-section-label" style={{ marginTop: activeTab === 'chaos' ? 0 : 16 }}>KILL LINK</div>
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+                  <select
+                    className="transmit-select"
+                    value={linkA}
+                    onChange={e => setLinkA(e.target.value)}
                   >
-                    <div
-                      className="chaos-node-dot"
-                      style={{ backgroundColor: isKilled ? 'var(--danger)' : PLANET_COLORS[node.id] }}
-                    />
-                    <span className="node-name">{node.id}</span>
+                    <option value="">Node A</option>
+                    {nodes.map(n => (
+                      <option key={n.id} value={n.id}>{n.id}</option>
+                    ))}
+                  </select>
+                  <select
+                    className="transmit-select"
+                    value={linkB}
+                    onChange={e => setLinkB(e.target.value)}
+                  >
+                    <option value="">Node B</option>
+                    {nodes.filter(n => n.id !== linkA).map(n => (
+                      <option key={n.id} value={n.id}>{n.id}</option>
+                    ))}
+                  </select>
+                  <button
+                    className="transmit-btn"
+                    onClick={() => {
+                      if (linkA && linkB && linkA !== linkB) {
+                        handleKillLink(linkA, linkB);
+                        setLinkA('');
+                        setLinkB('');
+                      }
+                    }}
+                    disabled={!linkA || !linkB}
+                    style={{ width: 'auto', padding: '6px 16px', background: '#ef4444', marginTop: 0 }}
+                  >
+                    Kill
                   </button>
-                );
-              })}
-            </div>
+                </div>
+              </>
+            )}
 
             {hasKills && (
               <button className="chaos-restore-btn" onClick={handleRestore}>
@@ -628,8 +676,8 @@ export default function App() {
               </button>
             )}
 
-            {killedLinks.length > 0 && (
-              <div style={{ marginTop: 12 }}>
+            {activeTab === 'chaos' && killedLinks.length > 0 && (
+              <div style={{ marginTop: 12, marginBottom: 12 }}>
                 <div className="chaos-section-label">DEAD LINKS</div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                   {killedLinks.map(link => (
